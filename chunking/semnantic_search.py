@@ -13,13 +13,14 @@ from langchain.chat_models import init_chat_model
 
 load_dotenv();
 
-pdf_file_path = "Cloud_Computing.pdf"
+pdf_file_path = os.path.join(os.path.dirname(__file__), "Cloud_Computing.pdf")
 
 print(f"Loading PDF from : {pdf_file_path}")
 
 
 with open(pdf_file_path, 'rb') as file:
     pdf_reader = PdfReader(file)
+    
     total_pages = len(pdf_reader.pages)
     print(f"PDF contains {total_pages} pages")
 

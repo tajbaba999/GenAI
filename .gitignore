@@ -1,0 +1,101 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+.eggs/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# uv
+.python-version
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# AI / ML artifacts
+checkpoints/
+models/
+weights/
+outputs/
+runs/
+wandb/
+mlruns/
+tensorboard/
+lightning_logs/
+
+# Hugging Face
+.cache/huggingface/
+huggingface/
+
+# General cache
+.cache/
+tmp/
+temp/
+
+# Generated files
+*.csv
+*.parquet
+*.feather
+*.pkl
+*.joblib
+*.onnx
+
+# Node (if using frontend)
+node_modules/
+
+# macOS
+.AppleDouble
+.LSOverride
+
+chunking/

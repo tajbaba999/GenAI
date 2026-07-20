@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from pypdf import PdfReader
 import re
 from langchain_experimental.text_splitter import SemanticChunker
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+# from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_mistralai import MistralAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
@@ -45,7 +46,8 @@ print(f"Text cleaning completed. Final length: {len(final_text):,} characters")
 
 print("Creating semantic characters.....")
 
-embeddings_model = OpenAIEmbeddings()
+# embeddings_model = OpenAIEmbeddings()
+embeddings_model = MistralAIEmbeddings(model="mistral-embed")
 
 chunker = SemanticChunker(
     embeddings_model,
@@ -78,7 +80,8 @@ print(f"Number of chunks are created: {len(documents_chunks)}")
 print("Creating vector Datbase")
 print(f"Processing {len(documents_chunks)} chunks")
 
-embeddings_model = OpenAIEmbeddings()
+# embeddings_model = OpenAIEmbeddings()
+embeddings_model = MistralAIEmbeddings(model="mistral-embed")
 
 print("Genrating embeddings and buildings FAISS index... ")
 vector_database = FAISS.from_documents(documents_chunks, embeddings_model)

@@ -4,6 +4,10 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_mistralai import ChatMistralAI
 from langchain_classic.retrievers.multi_query import MultiQueryRetriever
 from dotenv import load_dotenv
+import logging
+
+logging.basicConfig()
+logging.getLogger("langchain_classic.retrievers.multi_query").setLevel(logging.INFO)
 
 load_dotenv()
 

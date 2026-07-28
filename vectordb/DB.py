@@ -24,7 +24,7 @@ result = vectorstore.similarity_search("What is the used of data analysus", k=2)
 
 for r in result:
     print(r.page_content)
-    print()
+    print(r.metadata)
 
 retriver =  vectorstore.as_retriever(
     search_type="mmr",

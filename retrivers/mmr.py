@@ -32,7 +32,7 @@ print("\n===== mmr Search Results =====\n")
 
 mmr_retriver = vectorstore.as_retriever(
     search_type="mmr",
-    search_kwargs={"k" : 2}
+    search_kwargs={"k" : 3}
 )
 
 mmr_docs = mmr_retriver.invoke("What is gradient descent?")

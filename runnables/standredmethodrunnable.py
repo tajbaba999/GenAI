@@ -16,11 +16,11 @@ def bubby_double(y: int) -> int:
 sequene = (
     RunnableLambda(add_one) |
     RunnableLambda(bubby_double).with_retry(
-        stop_after_attempt=2,
+        stop_after_attempt=10,
         wait_exponential_jitter=False
     )
 )
 
-print(sequene.input_schema.model_json_schema)
-print(sequene.output_schema.model_json_schema)
+print(sequene.input_schema.model_json_schema())
+print(sequene.output_schema.model_json_schema())
 print(sequene.invoke(2))

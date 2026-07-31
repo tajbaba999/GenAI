@@ -6,10 +6,9 @@ from langchain_classic.retrievers.multi_query import MultiQueryRetriever
 from dotenv import load_dotenv
 import logging
 
+load_dotenv()
 logging.basicConfig()
 logging.getLogger("langchain_classic.retrievers.multi_query").setLevel(logging.INFO)
-
-load_dotenv()
 
 docs = [
     Document(page_content="Gradient descent is an optimization algorithm used in machine learning."),

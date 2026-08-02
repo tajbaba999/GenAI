@@ -15,6 +15,8 @@ class Pipelinestate(TypedDict):
 
 llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7)
 
+llm.with_structured_output
+
 def editor_node(state : Pipelinestate) -> dict:
     """Stage 1: Cleans up grammer, removes typos, and redfines the tone."""
     # print("\n--- [Stage 2] Executing Editor Node ---")

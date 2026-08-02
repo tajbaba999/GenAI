@@ -30,3 +30,44 @@ academic_retriver = build_retriver("academics_handbook.pdf")
 fee_retriver = build_retriver("fee_structure.pdf")
 
 llm = ChatGroq("llama-3.3-70b-versatile", temperature=0.4)
+
+#step -2 -> State
+
+class State(TypedDict):
+    programme: str
+    messages: Annotated[list, add_messages]
+    query_type: str
+    retrivered_context: str
+
+
+#Step 3 - Nodes generation 
+
+def classifier_node(state: State) -> dict:
+    """Look at the latest user message and decide which path to take."""
+
+    last_messages = state['messages'][-1].content
+
+    prompt = (
+        "Classify the following student query into exactly one category: "
+        "'academic', 'fee', or 'general'.\n\n"
+        "Use 'academic' for questions about attendance, exams, grading, credits, "
+        "promotion, course structure, summer training, or degree requirements.\n"
+        "Use 'fee' for questions about tuition, payment, refund, late charges, "
+        "scholarships, or any money-related topic.\n"
+        "Use 'general' for greetings, casual talk, or anything not related to "
+        "the college rules or fee.\n\n"
+        f"Query: {last_message}\n\n"
+        "Return only one word: academic, fee, or general."
+    )
+
+    respone = llm.invoke(prompt)
+    category = respone.content.strip().lower()
+
+    if "academic" in category:
+       category = "academic"
+    elif "fee" in category:
+       category = "fee"
+    else:
+       category = "general"
+
+    return {"query_type" : category}

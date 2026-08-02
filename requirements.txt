@@ -20,7 +20,6 @@ sentence-transformers
 # Document Loaders dependencies
 
 pypdf
-unstructured
 beautifulsoup4
 lxml
 
@@ -54,3 +53,10 @@ requests
 faiss-cpu 
 pypdf 
 python-dotenv
+
+langchain-community
+langchain-text-splitters
+langchain-huggingface
+langchain-chroma
+sentence-transformers
+faiss-cpu

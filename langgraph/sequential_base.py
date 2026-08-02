@@ -17,6 +17,8 @@ llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7)
 
 def editor_node(state : Pipelinestate) -> dict:
     """Stage 1: Cleans up grammer, removes typos, and redfines the tone."""
+    # print("\n--- [Stage 2] Executing Editor Node ---")
+
     prompt = (
         "You are an expert copyeditor. Clean up the following raw text. "
         "Fix any grammatical errors, spelling mistakes, and smooth out the transition flow "
@@ -27,9 +29,9 @@ def editor_node(state : Pipelinestate) -> dict:
     response = llm.invoke(prompt)
     return {"edited_text" : response.content.strip()}
 
-def script_writer(state: Pipelinestate) -> dict:
+def scriptwriter_node(state: Pipelinestate) -> dict:
      """Stage 2: Formats the clean text into an engaging video script style."""
-     print("\n--- [Stage 2] Executing Scriptwriter Node ---")
+    #  print("\n--- [Stage 2] Executing Scriptwriter Node ---")
 
      prompt = (
          "You are a charismatic YouTube content creator. Take this edited text and transform "
@@ -39,11 +41,11 @@ def script_writer(state: Pipelinestate) -> dict:
      )
 
      response = llm.invoke(prompt)
-     return {"script_writer" : response.content.strip()}
+     return {"script_text" : response.content.strip()}
 
 def translator_node(state: Pipelinestate) -> dict:
     """Stage 3: Translates the script into natural flowing Hinglish."""
-    print("\n--- [Stage 3] Executing Hinglish Translator Node ---")
+    # print("\n--- [Stage 3] Executing Hinglish Translator Node ---")
 
     prompt = (
         "You are an expert content localizer for the Indian market. Take the following script "
@@ -56,3 +58,65 @@ def translator_node(state: Pipelinestate) -> dict:
 
     response = llm.invoke(prompt)
     return {"final_output" : response.content.strip()}
+
+#now your state and nodes are ready and now it is time to create the graph 
+#and for creating the graph you have to connect tese nodes and for that you have 
+#to use the edges 
+#edges are very important to create the workflows 
+
+
+from langgraph.graph import StateGraph, START, END
+
+#create th graph
+graph = StateGraph(Pipelinestate)
+
+# add the nodes in graph 
+graph.add_node("editor",  editor_node)
+graph.add_node("scriptwriter", scriptwriter_node)
+graph.add_node("translator", translator_node)
+
+
+#Add edges (sequential - one after another)
+
+graph.add_edge(START, "editor")
+graph.add_edge("editor", "scriptwriter")
+graph.add_edge("scriptwriter", "translator")
+graph.add_edge("translator", END)
+
+#compile the graph
+app = graph.compile()
+
+result = app.invoke({
+    "raw_input" : "AI agents are the future of tech. They can think, plan, and act on their own. LangGraph helps you build these agents with proper control and memory."
+})
+
+#ouput
+# print("Your result : - \n\n")
+# print(result['final_output'])
+
+from pprint import pprint
+
+initial_state = {
+    "raw_input": (
+        "AI agents are the future of tech. "
+        "They can think, plan, and act on their own. "
+        "LangGraph helps you build these agents with proper control and memory."
+    )
+}
+
+print("\n========= STREAMING STATE =========\n")
+
+final_state = None
+
+for step, state in enumerate(app.stream(initial_state, stream_mode="values"), start=1):
+    print(f"\n{'='*50}")
+    print(f"STEP {step}")
+    print(f"{'='*50}")
+
+    pprint(state)
+
+    final_state = state
+
+print("\n========= FINAL OUTPUT =========\n")
+print(final_state["final_output"])    
+

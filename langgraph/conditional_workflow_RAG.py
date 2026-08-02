@@ -71,3 +71,117 @@ def classifier_node(state: State) -> dict:
        category = "general"
 
     return {"query_type" : category}
+
+def academic_rag_module(state: State) -> dict:
+    """Retrivers relvant chunks from the acadamic handbooks."""
+    query = state['messages'][-1].content
+    docs = academic_retriver.invoke(query)
+    context = "\n\n".join([docs.page_content for doc in docs])
+    return {"retrivered_context" : context}
+
+def fee_rag_node(state: State) -> dict:
+    """Retrieves relevant chunks from the fee structure PDF."""
+    query = state["messages"][-1].content
+    docs = fee_retriever.invoke(query)
+    context = "\n\n".join([doc.page_content for doc in docs])
+    return {"retrieved_context": context}
+
+def general_node(state: State) -> dict:
+    """Answers directly using the LLM's own knowledge, no retrieval needed."""
+    return {"retrieved_context": "NO_RETRIEVAL_NEEDED"}
+
+
+def response_node(state: State) -> dict:
+    """Generates the final answer, personalized using the student's programme."""
+    query = state["messages"][-1].content
+    programme = state.get("programme", "Unknown")
+    context = state["retrieved_context"]
+
+    if context == "NO_RETRIEVAL_NEEDED":
+        prompt = (
+            f"You are a friendly college assistant talking to a {programme} student. "
+            f"Answer this question using your own general knowledge:\n\n{query}"
+        )
+    else:
+        prompt = (
+            f"You are a college assistant helping a {programme} student. "
+            f"Use the following context from the official college documents to answer "
+            f"the question accurately. If the context mentions specific figures for "
+            f"different programmes, highlight the one relevant to {programme} if possible.\n\n"
+            f"Context:\n{context}\n\n"
+            f"Question: {query}\n\n"
+            f"Give a clear, friendly, and precise answer."
+        )
+
+    response = llm.invoke(prompt)
+    return {"messages": [("ai", response.content.strip())]}
+
+
+#step 4 - router function 
+
+def router_query(state: State):
+    if state['query_type'] == 'academic':
+        return "academic_rag"
+    elif state['query_type'] == "fee":
+        return "fee_rag"
+    else:
+        return "general"
+
+
+#step 5 - Building the graph 
+
+graph = StateGraph(State)
+
+graph.add_node("classifier", classifier_node)
+graph.add_node("academic_rag", academic_rag_module)
+graph.add_node("fee_rag" , fee_rag_node)
+graph.add_node("general", general_node)
+graph.add_node("response", response_node)
+
+#edges
+
+graph.add_edge(START, "classifier")
+
+graph.add_conditional_edges(
+    "classifier", router_query
+)
+
+graph.add_edge("academic_rag", "response")
+graph.add_edge("fee_rag", "response")
+graph.add_edge("general", "response")
+
+
+graph.add_edge("response", END)
+
+app = graph.compile()
+
+print("welcome to the College assistant \n\n")
+
+print("which programe are you in ")
+print("1. BCA")
+print("2. BBA")
+print("3. B.com (H)")
+
+choice = input("\nEnter 1, 2 or 3 ")
+
+programme_map = {
+    "1": "BCA",
+    "2": "BBA",
+    "3": "B.Com (H)"
+}
+student_programme = programme_map.get(choice, "BCA")
+
+print(f"\nGreat! You're set as a {student_programme} student.")
+
+while True:
+    user_query = input("You:  ")
+
+    if user_query.lower() in ["exit","quit"]:
+        break
+    
+    result = app.invoke({
+        "programme": student_programme,
+        "messages": [("human",user_query)]
+    })
+
+    print(f"Assistant : {result['messages'][-1].content}")

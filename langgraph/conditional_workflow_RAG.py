@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 embeddings = HuggingFaceEmbeddings(model_name = "sentence-transformers/all-MiniLM-L6-v2")
 
 def build_retriver(pdf_path: str):
@@ -26,10 +28,10 @@ def build_retriver(pdf_path: str):
     return vectorstore.as_retriever(search_kwargs= {"k" : 4})
 
 
-academic_retriver = build_retriver("academics_handbook.pdf")
-fee_retriver = build_retriver("fee_structure.pdf")
+academic_retriver = build_retriver(os.path.join(BASE_DIR, "academics_handbook.pdf"))
+fee_retriver = build_retriver(os.path.join(BASE_DIR, "fee_structure.pdf"))
 
-llm = ChatGroq("llama-3.3-70b-versatile", temperature=0.4)
+llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.4)
 
 #step -2 -> State
 
@@ -37,7 +39,7 @@ class State(TypedDict):
     programme: str
     messages: Annotated[list, add_messages]
     query_type: str
-    retrivered_context: str
+    retrieved_context: str
 
 
 #Step 3 - Nodes generation 
@@ -56,7 +58,7 @@ def classifier_node(state: State) -> dict:
         "scholarships, or any money-related topic.\n"
         "Use 'general' for greetings, casual talk, or anything not related to "
         "the college rules or fee.\n\n"
-        f"Query: {last_message}\n\n"
+        f"Query: {last_messages}\n\n"
         "Return only one word: academic, fee, or general."
     )
 
@@ -77,7 +79,7 @@ def academic_rag_module(state: State) -> dict:
     query = state['messages'][-1].content
     docs = academic_retriver.invoke(query)
     context = "\n\n".join([docs.page_content for doc in docs])
-    return {"retrivered_context" : context}
+    return {"retrieved_context" : context}
 
 def fee_rag_node(state: State) -> dict:
     """Retrieves relevant chunks from the fee structure PDF."""

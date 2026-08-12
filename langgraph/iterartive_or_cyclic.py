@@ -179,13 +179,9 @@ graph.add_conditional_edges(
 
 app = graph.compile()
 
-from pathlib import Path
-
-png_bytes = app.get_graph().draw_mermaid_png()
-graph_path = Path(__file__).parent / "graph.png"
-graph_path.write_bytes(png_bytes)
-print(f"Graph image saved to: {graph_path}")
-
+#chekc this method only in Jupyter note book only for just reference
+from IPython.display import Image, display
+display(Image(graph.get_graph().draw_mermaid_png()))
 
 
 print("=" * 55)
